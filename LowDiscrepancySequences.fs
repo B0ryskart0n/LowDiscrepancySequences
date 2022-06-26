@@ -4,7 +4,7 @@ open System
 open System.IO
 open System.Numerics
 
-type Additive (nDims: int) = 
+type Additive (nDims : int) = 
     do if nDims < 1 then invalidArg "nDims" "Sequence dimension must be positive."
 
     let primes = [|2.0; 3.0; 5.0; 7.0; 11.0; 13.0; 17.0; 19.0|]
@@ -41,7 +41,7 @@ type Additive (nDims: int) =
         this.CalculateNext ()
         u
 
-type Halton (nDims: int) = 
+type Halton (nDims : int) = 
     do if nDims < 1 then invalidArg "dim" "Sequence dimension must be positive."
 
     let primes = [|2; 3; 5; 7; 11; 13; 17; 19|]
@@ -98,7 +98,7 @@ module Constats =
         |> Array2D.map uint
 open Constats
 
-type Sobol (nDims: int) = 
+type Sobol (nDims : int) = 
     do if nDims < 1 then invalidArg "nDims" "Sequence dimension must be positive."
 
     let nDimsMax = Array.length aSobol
@@ -115,7 +115,9 @@ type Sobol (nDims: int) =
 
     let u = Array.create nDims 0.0
 
-    let bitCastInt32 (a: uint32) = a |> BitConverter.GetBytes |> BitConverter.ToInt32
+    let sysRand = System.Random 0 // in case we run out of elements
+
+    let bitCastInt32 (a : uint32) : int32 = a |> BitConverter.GetBytes |> BitConverter.ToInt32
 
     do if nDims > 1 then
         let mutable a = 0u
@@ -143,20 +145,25 @@ type Sobol (nDims: int) =
     member this.CurrentFast () = u
 
     member private this.CalculateNext () = 
-        if n = 0u - 1u then failwith "Maximum number of points in the Sobol sequence already reached."
+        if n = 0u - 1u then
+            eprintf "Maximum number of points in the Sobol sequence reached. "
+            eprintfn "Returning a pseudorandom point."
 
-        n <- n + 1u
+            for i in 0 .. nDims - 1 do
+                u[i] <- sysRand.NextDouble ()
+        else 
+            n <- n + 1u
 
-        cTemp <- BitOperations.TrailingZeroCount n |> uint
-        for i in 0 .. nDims - 1 do
-            bTemp <- b[i]
-            if bTemp >= cTemp then
-                x[i] <- x[i] ^^^ (m[i, int cTemp] <<< int (bTemp - cTemp))
-                u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~bTemp) // should be ldexp (C.math.ldexp)
-            else
-                x[i] <- (x[i] <<< int (cTemp - bTemp)) ^^^ m[i, int cTemp]
-                b[i] <- cTemp
-                u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~cTemp) // should be ldexp (C.math.ldexp)
+            cTemp <- BitOperations.TrailingZeroCount n |> uint
+            for i in 0 .. nDims - 1 do
+                bTemp <- b[i]
+                if bTemp >= cTemp then
+                    x[i] <- x[i] ^^^ (m[i, int cTemp] <<< int (bTemp - cTemp))
+                    u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~bTemp)
+                else
+                    x[i] <- (x[i] <<< int (cTemp - bTemp)) ^^^ m[i, int cTemp]
+                    b[i] <- cTemp
+                    u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~cTemp)
 
     member this.Next () = 
         this.CalculateNext ()
