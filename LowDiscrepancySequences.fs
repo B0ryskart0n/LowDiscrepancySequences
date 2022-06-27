@@ -4,13 +4,19 @@ open System
 open System.IO
 open System.Numerics
 
+/// <summary>Represents the <c>nDims</c>-dimensional sequence definded by the additive recurrence.</summary>
+/// <remarks>The maximum number of dimensions could easily be increased by adding more primes to the <c>primes</c> array.</remarks>
+/// <param name="nDims">The number of dimensions.</param>
+/// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 8.</exception>
 type Additive (nDims : int) = 
-    do if nDims < 1 then invalidArg "nDims" "Sequence dimension must be positive."
+    do if nDims < 1 then 
+        invalidArg "nDims" "Sequence dimension must be positive."
 
     let primes = [|2.0; 3.0; 5.0; 7.0; 11.0; 13.0; 17.0; 19.0|]
     let nDimsMax = Array.length primes
 
-    do if nDims > nDimsMax then invalidArg "nDims" <| sprintf "Sequence dimension must be at most %i." nDimsMax
+    do if nDims > nDimsMax then 
+        invalidArg "nDims" <| sprintf "Sequence dimension must be at most %i." nDimsMax
 
     let bases = 
         match nDims with
@@ -26,7 +32,6 @@ type Additive (nDims : int) =
     member this.NDims () = nDims
 
     member this.Current () = Array.copy u
-
     member this.CurrentFast () = u
 
     member private this.CalculateNext () = 
@@ -36,7 +41,6 @@ type Additive (nDims : int) =
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
-
     member this.NextFast () = 
         this.CalculateNext ()
         u
@@ -86,7 +90,7 @@ type Halton (nDims : int) =
         this.CalculateNext ()
         u
 
-module Constats = 
+module private Constats = 
     let aSobol = 
         File.ReadAllLines "aSobol.txt" 
         |> Array.map uint
