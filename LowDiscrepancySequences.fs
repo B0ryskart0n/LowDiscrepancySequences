@@ -27,20 +27,22 @@ type Additive
     do if nDims < 1 then 
         invalidArg "nDims" "Sequence dimension must be positive."
 
-    let primes = [|2.0; 3.0; 5.0; 7.0; 11.0; 13.0; 17.0; 19.0|]
-    let nDimsMax = Array.length primes
+    let phi i = 
+        let d = float i + 1.0
+        let mutable phi = 2.0
+        let mutable phi2 = (phi + 1.0) ** (1.0 / (d + 1.0))
+
+        while phi <> phi2 do
+            phi <- phi2
+            phi2 <- (phi + 1.0) ** (1.0 / (d + 1.0))
+        phi
+
+    let nDimsMax = 8
 
     do if nDims > nDimsMax then 
         invalidArg "nDims" <| sprintf "Sequence dimension must be at most %i." nDimsMax
 
-    let bases = 
-        match nDims with
-        | 1 -> [|(sqrt 5.0 - 1.0) / 2.0|] // golden ratio
-        | _ -> 
-            primes
-            |> Array.take nDims
-            |> Array.map sqrt
-            |> Array.map (fun x -> x % 1.0)
+    let phis = Array.init nDims phi
 
     let u = Array.create nDims 0.0
 
@@ -49,7 +51,7 @@ type Additive
 
     member private this.CalculateNext () = 
         for i in 0 .. nDims - 1 do 
-            u[i] <- (u[i] + bases[i]) % 1.0
+            u[i] <- (u[i] + phis[i]) % 1.0
 
     /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
     /// <returns>The next point in the sequence.</returns>
@@ -123,7 +125,7 @@ type Sobol
     /// <returns>The <c>nDims</c>-dimensional Sobol sequence.</returns>
     /// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 21200.</exception>
     (nDims : int) = 
-    
+
     do if nDims < 1 then invalidArg "nDims" "Sequence dimension must be positive."
 
     let nDimsMax = Array.length aSobol
