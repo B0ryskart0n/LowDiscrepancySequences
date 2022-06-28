@@ -4,11 +4,26 @@ open System
 open System.IO
 open System.Numerics
 
-/// <summary>Represents the <c>nDims</c>-dimensional sequence definded by the additive recurrence.</summary>
-/// <remarks>The maximum number of dimensions could easily be increased by adding more primes to the <c>primes</c> array.</remarks>
-/// <param name="nDims">The number of dimensions.</param>
-/// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 8.</exception>
-type Additive (nDims : int) = 
+module private Constats = 
+    let aSobol = 
+        File.ReadAllLines "aSobol.txt" 
+        |> Array.map uint
+
+    let minitSobol = 
+        File.ReadAllLines "minitSobol.txt"
+        |> Array.map (fun s -> s.Split [|','|])
+        |> array2D
+        |> Array2D.map uint
+open Constats
+
+/// <summary>Low-discrepancy sequence definded by the additive recurrence.</summary>
+type Additive 
+    /// <summary>Initializes the <c>nDims</c>-dimensional sequence definded by the additive recurrence.</summary>
+    /// <param name="nDims">The number of dimensions.</param>
+    /// <returns>The <c>nDims</c>-dimensional sequence definded by the additive recurrence.</returns>
+    /// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 8.</exception>
+    (nDims : int) = 
+
     do if nDims < 1 then 
         invalidArg "nDims" "Sequence dimension must be positive."
 
@@ -29,23 +44,32 @@ type Additive (nDims : int) =
 
     let u = Array.create nDims 0.0
 
-    member this.NDims () = nDims
-
-    member this.Current () = Array.copy u
-    member this.CurrentFast () = u
+    /// <summary>The number of dimensions <c>nDims</c>.</summary>
+    member this.NDims = nDims
 
     member private this.CalculateNext () = 
         for i in 0 .. nDims - 1 do 
             u[i] <- (u[i] + bases[i]) % 1.0
 
+    /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
+    /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
+
+    /// <summary>Calculates the next point in the sequence. Passed by reference.</summary>
+    /// <returns>The next point in the sequence.</returns>
     member this.NextFast () = 
         this.CalculateNext ()
         u
 
-type Halton (nDims : int) = 
+/// <summary>Low-discrepancy Halton sequence.</summary>
+type Halton 
+    /// <summary>Initializes the <c>nDims</c>-dimensional Halton sequence.</summary>
+    /// <param name="nDims">The number of dimensions.</param>
+    /// <returns>The <c>nDims</c>-dimensional Halton sequence.</returns>
+    /// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 8.</exception>
+    (nDims : int) = 
     do if nDims < 1 then invalidArg "dim" "Sequence dimension must be positive."
 
     let primes = [|2; 3; 5; 7; 11; 13; 17; 19|]
@@ -62,11 +86,8 @@ type Halton (nDims : int) =
 
     let u = Array.create nDims 0.0
 
-    member this.NDims () = nDims
-
-    member this.Current () = Array.copy u
-
-    member this.CurrentFast () = u
+    /// <summary>The number of dimensions <c>nDims</c>.</summary>
+    member this.NDims = nDims
 
     member private this.CalculateNext () = 
         for i in 0 .. nDims - 1 do
@@ -82,30 +103,30 @@ type Halton (nDims : int) =
                 n[i] <- (bases[i] + 1) * y[i] - x[i]
             u[i] <- float n[i] / float d[i]
 
+    /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
+    /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
 
+    /// <summary>Calculates the next point in the sequence. Passed by reference.</summary>
+    /// <returns>The next point in the sequence.</returns>
     member this.NextFast () = 
         this.CalculateNext ()
         u
 
-module private Constats = 
-    let aSobol = 
-        File.ReadAllLines "aSobol.txt" 
-        |> Array.map uint
-
-    let minitSobol = 
-        File.ReadAllLines "minitSobol.txt"
-        |> Array.map (fun s -> s.Split [|','|])
-        |> array2D
-        |> Array2D.map uint
-open Constats
-
-type Sobol (nDims : int) = 
+/// <summary>Low-discrepancy Sobol sequence.</summary>
+type Sobol 
+    /// <summary>Initializes the <c>nDims</c>-dimensional Sobol sequence.</summary>
+    /// <param name="nDims">The number of dimensions.</param>
+    /// <returns>The <c>nDims</c>-dimensional Sobol sequence.</returns>
+    /// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 21200.</exception>
+    (nDims : int) = 
     do if nDims < 1 then invalidArg "nDims" "Sequence dimension must be positive."
 
     let nDimsMax = Array.length aSobol
+
+    do printfn "%A" nDimsMax
 
     do if nDims > nDimsMax then invalidArg "nDims" <| sprintf "Sequence dimension must be at most %i." nDimsMax
 
@@ -142,11 +163,8 @@ type Sobol (nDims : int) =
                     m[i, j] <- m[i, j] ^^^ (((ac &&& 1u) * m[i, j - d + k]) <<< (d - k))
                     ac <- ac >>> 1
 
-    member this.NDims () = nDims
-
-    member this.Current () = Array.copy u
-
-    member this.CurrentFast () = u
+    /// <summary>The number of dimensions <c>nDims</c>.</summary>
+    member this.NDims = nDims
 
     member private this.CalculateNext () = 
         if n = 0u - 1u then
@@ -169,10 +187,14 @@ type Sobol (nDims : int) =
                     b[i] <- cTemp
                     u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~cTemp)
 
+    /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
+    /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
-    
+
+    /// <summary>Calculates the next point in the sequence. Passed by reference.</summary>
+    /// <returns>The next point in the sequence.</returns>
     member this.NextFast () = 
         this.CalculateNext ()
         u
