@@ -70,6 +70,7 @@ type Halton
     /// <returns>The <c>nDims</c>-dimensional Halton sequence.</returns>
     /// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 8.</exception>
     (nDims : int) = 
+
     do if nDims < 1 then invalidArg "dim" "Sequence dimension must be positive."
 
     let primes = [|2; 3; 5; 7; 11; 13; 17; 19|]
@@ -122,6 +123,7 @@ type Sobol
     /// <returns>The <c>nDims</c>-dimensional Sobol sequence.</returns>
     /// <exception cref="System.ArgumentException">Thrown when <c>nDims</c> is less than 1 or greater than 21200.</exception>
     (nDims : int) = 
+    
     do if nDims < 1 then invalidArg "nDims" "Sequence dimension must be positive."
 
     let nDimsMax = Array.length aSobol
