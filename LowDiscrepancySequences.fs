@@ -49,14 +49,11 @@ type Additive
     /// <summary>The number of dimensions <c>nDims</c>.</summary>
     member this.NDims = nDims
 
-    member private this.CalculateNext () = 
-        for i in 0 .. nDims - 1 do 
-            u[i] <- (u[i] + phis[i]) % 1.0
-
     /// <summary>Calculates the next point in the sequence.</summary>
     /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
-        this.CalculateNext ()
+        for i in 0 .. nDims - 1 do 
+            u[i] <- (u[i] + phis[i]) % 1.0
         Array.copy u
 
 /// <summary>Low-discrepancy Halton sequence.</summary>
@@ -86,7 +83,9 @@ type Halton
     /// <summary>The number of dimensions <c>nDims</c>.</summary>
     member this.NDims = nDims
 
-    member private this.CalculateNext () = 
+    /// <summary>Calculates the next point in the sequence.</summary>
+    /// <returns>The next point in the sequence.</returns>
+    member this.Next () = 
         for i in 0 .. nDims - 1 do
             x[i] <- d[i] - n[i]
 
@@ -99,11 +98,6 @@ type Halton
                     y[i] <- y[i] / bases[i]
                 n[i] <- (bases[i] + 1) * y[i] - x[i]
             u[i] <- float n[i] / float d[i]
-
-    /// <summary>Calculates the next point in the sequence.</summary>
-    /// <returns>The next point in the sequence.</returns>
-    member this.Next () = 
-        this.CalculateNext ()
         Array.copy u
 
 /// <summary>Low-discrepancy Sobol sequence.</summary>
@@ -158,7 +152,9 @@ type Sobol
     /// <summary>The number of dimensions <c>nDims</c>.</summary>
     member this.NDims = nDims
 
-    member private this.CalculateNext () = 
+    /// <summary>Calculates the next point in the sequence.</summary>
+    /// <returns>The next point in the sequence.</returns>
+    member this.Next () = 
         if n = 0u - 1u then
             eprintf "Maximum number of points in the Sobol sequence reached. "
             eprintfn "Returning a pseudorandom point."
@@ -178,9 +174,4 @@ type Sobol
                     x[i] <- (x[i] <<< int (cTemp - bTemp)) ^^^ m[i, int cTemp]
                     b[i] <- cTemp
                     u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~cTemp)
-
-    /// <summary>Calculates the next point in the sequence.</summary>
-    /// <returns>The next point in the sequence.</returns>
-    member this.Next () = 
-        this.CalculateNext ()
         Array.copy u
