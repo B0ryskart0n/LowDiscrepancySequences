@@ -53,17 +53,11 @@ type Additive
         for i in 0 .. nDims - 1 do 
             u[i] <- (u[i] + phis[i]) % 1.0
 
-    /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
+    /// <summary>Calculates the next point in the sequence.</summary>
     /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
-
-    /// <summary>Calculates the next point in the sequence. Passed by reference.</summary>
-    /// <returns>The next point in the sequence.</returns>
-    member this.NextFast () = 
-        this.CalculateNext ()
-        u
 
 /// <summary>Low-discrepancy Halton sequence.</summary>
 type Halton 
@@ -106,17 +100,11 @@ type Halton
                 n[i] <- (bases[i] + 1) * y[i] - x[i]
             u[i] <- float n[i] / float d[i]
 
-    /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
+    /// <summary>Calculates the next point in the sequence.</summary>
     /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
-
-    /// <summary>Calculates the next point in the sequence. Passed by reference.</summary>
-    /// <returns>The next point in the sequence.</returns>
-    member this.NextFast () = 
-        this.CalculateNext ()
-        u
 
 /// <summary>Low-discrepancy Sobol sequence.</summary>
 type Sobol 
@@ -191,14 +179,8 @@ type Sobol
                     b[i] <- cTemp
                     u[i] <- float x[i] * 2.0 ** float (bitCastInt32 ~~~cTemp)
 
-    /// <summary>Calculates the next point in the sequence. Passed by value.</summary>
+    /// <summary>Calculates the next point in the sequence.</summary>
     /// <returns>The next point in the sequence.</returns>
     member this.Next () = 
         this.CalculateNext ()
         Array.copy u
-
-    /// <summary>Calculates the next point in the sequence. Passed by reference.</summary>
-    /// <returns>The next point in the sequence.</returns>
-    member this.NextFast () = 
-        this.CalculateNext ()
-        u
