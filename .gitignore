@@ -1,3 +1,6 @@
+.vs
+bin
+obj
 Benchmark.fs
 test.fsx
 planned.md
