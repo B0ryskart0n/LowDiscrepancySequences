@@ -16,6 +16,11 @@ type Additive
     do if nDims < 1 then 
         invalidArg "nDims" "Sequence dimension must be positive."
 
+    let nDimsMax = 176
+
+    do if nDims > nDimsMax then 
+        invalidArg "nDims" <| sprintf "Sequence dimension must be at most %i." nDimsMax
+
     let phi i = 
         let d = float i + 1.0
         let mutable phi = 2.0
@@ -25,11 +30,6 @@ type Additive
             phi <- phi2
             phi2 <- (phi + 1.0) ** (1.0 / (d + 1.0))
         phi
-
-    let nDimsMax = 8
-
-    do if nDims > nDimsMax then 
-        invalidArg "nDims" <| sprintf "Sequence dimension must be at most %i." nDimsMax
 
     let phis = Array.init nDims phi
 
