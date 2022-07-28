@@ -1,6 +1,10 @@
 .vs
+
 bin
 obj
-Benchmark.fs
+
+LowDiscrepancySequences.sln
+
+benchmark.fs
 test.fsx
 planned.md
