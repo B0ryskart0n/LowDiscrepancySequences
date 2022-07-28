@@ -6,25 +6,23 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <WarningLevel>9999</WarningLevel>
+    <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <WarningLevel>9999</WarningLevel>
+    <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
-
-  <ItemGroup />
-
-  <ItemGroup />
-
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="planned.md" />
     <None Include="README.md" />
     <Content Include="aSobol.txt" />
     <Content Include="minitSobol.txt" />
+    <Compile Include="benchmark.fs" />
+    <Compile Include="sobolConstants.fs" />
+    <Compile Include="sequences.fs" />
     <Compile Include="Benchmark.fs" />
     <Compile Include="LowDiscrepancySequences.fs" />
     <None Include="test.fsx" />

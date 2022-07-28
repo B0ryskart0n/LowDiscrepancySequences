@@ -1,6 +1,6 @@
 .vs
 bin
 obj
-Benchmark.fs
+benchmark.fs
 test.fsx
 planned.md

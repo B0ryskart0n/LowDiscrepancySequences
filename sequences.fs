@@ -1,20 +1,9 @@
-module LowDiscrepancySequences
+namespace LowDiscrepancySequences
 
 open System
-open System.IO
 open System.Numerics
 
-module private Constats = 
-    let aSobol = 
-        File.ReadAllLines "aSobol.txt" 
-        |> Array.map uint
-
-    let minitSobol = 
-        File.ReadAllLines "minitSobol.txt"
-        |> Array.map (fun s -> s.Split [|','|])
-        |> array2D
-        |> Array2D.map uint
-open Constats
+open sobolConstants
 
 /// <summary>Low-discrepancy sequence definded by the additive recurrence.</summary>
 type Additive 
